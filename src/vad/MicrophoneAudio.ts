@@ -21,6 +21,14 @@ class MicrophoneAudio {
     };
   }
 
+  getDeviceId(): Promise<string> {
+    return navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const deviceId = stream.getTracks()[0].getSettings().deviceId;
+      console.log("The device Id is",deviceId);
+      return deviceId;
+    });
+  }
+
   async start(): Promise<void> {
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({
@@ -30,6 +38,9 @@ class MicrophoneAudio {
         },
       });
 
+      this.getDeviceId().then((deviceId) => {
+        console.log("The device Id is",deviceId);
+      });
       this.audioContext = new AudioContext({
         sampleRate: this.options.sampleRate,
       });
