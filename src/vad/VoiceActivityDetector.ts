@@ -64,10 +64,15 @@ export class VadDetector {
 
         let speechProb: number;
         try {
-           let speechProbPromise = await this.model.call(x, this.samplingRate);
-           speechProb = speechProbPromise[0][0];
+            let speechProbPromise = await this.model.call(x, this.samplingRate);
+            if (speechProbPromise && Array.isArray(speechProbPromise) && speechProbPromise[0]) {
+                speechProb = speechProbPromise[0][0];
+            } else {
+                throw new Error("Unexpected response from model");
+            }
             // console.log("The speechProb",speechProb);
         } catch (e) {
+            console.error("Error in VadDetector.apply:", e);
             throw new Error("Error calling the model: " + e);
         }
 
