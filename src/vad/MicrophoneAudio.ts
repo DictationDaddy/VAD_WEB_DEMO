@@ -14,22 +14,26 @@ class MicrophoneAudio {
   private buffer: Float32Array = new Float32Array();
 
   constructor(options: MicrophoneAudioOptions) {
+    console.log('Initializing MicrophoneAudio');
     this.options = {
       sampleRate: 16000,
       channels: 1,
       ...options,
     };
+    console.log(`MicrophoneAudio options: ${JSON.stringify(this.options)}`);
   }
 
   getDeviceId(): Promise<string> {
+    console.log('Getting device ID');
     return navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       const deviceId = stream.getTracks()[0].getSettings().deviceId;
-      console.log("The device Id is",deviceId);
+      console.log("The device Id is", deviceId);
       return deviceId;
     });
   }
 
   async start(): Promise<void> {
+    console.log('Starting MicrophoneAudio');
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -37,9 +41,10 @@ class MicrophoneAudio {
           channelCount: this.options.channels,
         },
       });
+      console.log('MediaStream acquired');
 
       this.getDeviceId().then((deviceId) => {
-        console.log("The device Id is",deviceId);
+        console.log("The device Id is", deviceId);
       });
       this.audioContext = new AudioContext({
         sampleRate: this.options.sampleRate,
@@ -82,6 +87,7 @@ class MicrophoneAudio {
 
       this.sourceNode.connect(this.workletNode);
       this.workletNode.connect(this.audioContext.destination);
+      console.log('AudioWorklet added and connected');
     } catch (error) {
       console.error('Error starting microphone:', error);
       throw error;
@@ -89,6 +95,7 @@ class MicrophoneAudio {
   }
 
   stop(): void {
+    console.log('Stopping MicrophoneAudio');
     if (this.workletNode) {
       this.workletNode.port.postMessage('flush');
       this.workletNode.disconnect();
@@ -115,6 +122,7 @@ class MicrophoneAudio {
       this.options.onAudioData(this.buffer);
       this.buffer = new Float32Array();
     }
+    console.log('MicrophoneAudio stopped');
   }
 }
 

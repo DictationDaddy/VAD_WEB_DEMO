@@ -10,16 +10,20 @@ class OnnxWrapper {
     private sessionReady: Promise<void>;
 
     constructor(path: string, force_onnx_cpu: boolean = true) {
+        console.log(`Initializing OnnxWrapper with path: ${path}`);
         this.sessionReady = this.initSession(path, force_onnx_cpu);
         this.resetStates();
         this.sample_rates = [8000, 16000];
     }
 
     async ready(): Promise<void> {
+        console.log('Waiting for OnnxWrapper session to be ready');
         await this.sessionReady;
+        console.log('OnnxWrapper session is ready');
     }
 
     private async initSession(path: string, force_onnx_cpu: boolean) {
+        console.log(`Initializing ONNX session with force_onnx_cpu: ${force_onnx_cpu}`);
         const options: ort.InferenceSession.SessionOptions = {
             executionProviders: force_onnx_cpu ? ['wasm'] : ['webgl', 'wasm'],
             graphOptimizationLevel: 'all',
@@ -35,6 +39,7 @@ class OnnxWrapper {
         };
 
         this.session = await ort.InferenceSession.create(path, options);
+        console.log('ONNX session created successfully');
     }
 
     private _validate_input(x: number[][], sr: number): [number[][], number] {
@@ -59,6 +64,7 @@ class OnnxWrapper {
     }
 
     resetStates(batch_size: number = 1): void {
+        console.log(`Resetting states with batch_size: ${batch_size}`);
         this._state = Array(2).fill(0).map(() => Array(batch_size * 128).fill(0));
         this._context = [];
         this._last_sr = 0;
@@ -66,6 +72,7 @@ class OnnxWrapper {
     }
 
     async call(x: number[][], sr: number): Promise<number[][]> {
+        console.log(`Calling model with input shape: [${x.length}, ${x[0].length}], sample rate: ${sr}`);
         await this.ready();
         [x, sr] = this._validate_input(x, sr);
         const num_samples = sr === 16000 ? 512 : 256;
@@ -120,7 +127,7 @@ class OnnxWrapper {
             this._last_sr = sr;
             this._last_batch_size = batch_size;
 
-            // console.log("The out",out);
+            console.log(`Model call completed, output shape: [${out.length}, ${out[0].length}]`);
             return out;
         } else {
             throw new Error(`Unsupported sample rate: ${sr}. Supported rates are 8000 and 16000.`);
@@ -128,6 +135,7 @@ class OnnxWrapper {
     }
 
     async audio_forward(x: number[][], sr: number): Promise<number[][]> {
+        console.log(`Running audio_forward with input shape: [${x.length}, ${x[0].length}], sample rate: ${sr}`);
         const outs: number[][][] = [];
         [x, sr] = this._validate_input(x, sr);
         this.resetStates();
@@ -144,10 +152,12 @@ class OnnxWrapper {
             outs.push(out_chunk);
         }
 
+        console.log(`audio_forward completed, output shape: [${outs.length}, ${outs[0].length}]`);
         return outs.reduce((acc, curr) => acc.map((row, i) => [...row, ...curr[i]]));
     }
 
     close(): void {
+        console.log('Closing OnnxWrapper session');
         this.session.release();
     }
 }

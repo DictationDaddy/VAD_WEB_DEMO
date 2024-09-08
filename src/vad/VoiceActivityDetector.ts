@@ -30,6 +30,7 @@ export class VadDetector {
         this.minSilenceSamples = samplingRate * minSilenceDurationMs / 1000;
         this.speechPadSamples = samplingRate * speechPadMs / 1000;
         this.reset();
+        console.log(`VadDetector initialized with: startThreshold=${startThreshold}, endThreshold=${endThreshold}, samplingRate=${samplingRate}`);
     }
 
     reset(): void {
@@ -37,9 +38,11 @@ export class VadDetector {
         this.triggered = false;
         this.tempEnd = 0;
         this.currentSample = 0;
+        console.log('VadDetector reset');
     }
 
     async apply(data: Float32Array, returnSeconds: boolean): Promise<{ start?: number; end?: number }> {
+        console.log(`Applying VAD to data of length ${data.length}`);
         const windowSizeSamples = data.length;
         this.currentSample += windowSizeSamples;
 
@@ -67,10 +70,10 @@ export class VadDetector {
             let speechProbPromise = await this.model.call(x, this.samplingRate);
             if (speechProbPromise && Array.isArray(speechProbPromise) && speechProbPromise[0]) {
                 speechProb = speechProbPromise[0][0];
+                console.log(`Speech probability: ${speechProb}`);
             } else {
                 throw new Error("Unexpected response from model");
             }
-            // console.log("The speechProb",speechProb);
         } catch (e) {
             console.error("Error in VadDetector.apply:", e);
             throw new Error("Error calling the model: " + e);
@@ -83,7 +86,7 @@ export class VadDetector {
         if (speechProb >= this.startThreshold && !this.triggered) {
             this.triggered = true;
             let speechStart = Math.max(this.currentSample - this.speechPadSamples, 0);
-            console.log("The speechStart",speechStart);
+            console.log(`Speech start detected at sample ${speechStart}`);
             if (returnSeconds) {
                 const speechStartSeconds = speechStart / this.samplingRate;
                 return { start: Number(speechStartSeconds.toFixed(1)) };
@@ -93,15 +96,17 @@ export class VadDetector {
         }
 
         if (speechProb < this.endThreshold && this.triggered) {
-            console.log("The speech end",this.tempEnd);
+            console.log(`Potential speech end at sample ${this.currentSample}`);
             if (this.tempEnd === 0) {
                 this.tempEnd = this.currentSample;
             }
             
             if (this.currentSample - this.tempEnd < this.minSilenceSamples) {
+                console.log('Silence duration too short, continuing');
                 return {};
             } else {
                 const speechEnd = this.tempEnd + this.speechPadSamples;
+                console.log(`Speech end confirmed at sample ${speechEnd}`);
                 this.tempEnd = 0;
                 this.triggered = false;
 

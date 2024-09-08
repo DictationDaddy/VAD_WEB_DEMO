@@ -36,20 +36,25 @@ export class SpeechChunks {
             SpeechChunks.MIN_SILENCE_DURATION_MS,
             SpeechChunks.SPEECH_PAD_MS
         );
+
+        console.log('SpeechChunks initialized');
     }
 
     private async processAudioData(audioData: Float32Array): Promise<void> {
-        // console.log('Processing audio data', audioData.length);
-        try{
-            const result = await this.vadDetector.apply(audioData , false);
+        console.log(`Processing audio data of length ${audioData.length}`);
+        try {
+            const result = await this.vadDetector.apply(audioData, false);
             if (result.start !== undefined) {
                 this.isSpeechActive = true;
+                console.log('Speech start detected');
                 this.onSpeechStart();
             } else if (result.end !== undefined) {
                 this.isSpeechActive = false;
+                console.log('Speech end detected');
                 this.onSpeechEnd(this.getBlob());
             }
             if (this.isSpeechActive) {
+                console.log('Adding chunk to speech');
                 this.chunks.push(Array.from(audioData));
             }
         } catch (error) {
@@ -58,22 +63,26 @@ export class SpeechChunks {
     }
 
     async start(): Promise<void> {
+        console.log('Starting SpeechChunks');
         await this.microphoneAudio.start();
     }
     
     stop(): void {
+        console.log('Stopping SpeechChunks');
         this.microphoneAudio.stop();
         this.vadDetector.reset();
         this.isSpeechActive = false;
     }
 
     getSpeechChunks(): number[][] {
+        console.log(`Returning ${this.chunks.length} speech chunks`);
         const speechChunks = this.chunks;
         this.chunks = [];
         return speechChunks;
     }
 
     getBlob(): Blob {
+        console.log('Creating audio blob from speech chunks');
         // Combine all chunks into a single Float32Array
         const combinedChunks = this.chunks;
         const combinedLength = combinedChunks.reduce((sum, chunk) => sum + chunk.length, 0);
@@ -116,6 +125,7 @@ export class SpeechChunks {
 
         // Combine header and data
         const blob = new Blob([header, intData], { type: 'audio/wav' });
+        console.log(`Created blob of size ${blob.size} bytes`);
         return blob;
     }
 
@@ -127,6 +137,7 @@ export class SpeechChunks {
     }
 
     async close(): Promise<void> {
+        console.log('Closing SpeechChunks');
         this.stop();
         await this.vadDetector.close();
     }
