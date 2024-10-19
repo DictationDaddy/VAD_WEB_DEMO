@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 
-
-function getState(eventType){
-  switch (eventType){
+function getState(eventType) {
+  switch (eventType) {
     case "START_LISTENING":
     case "RECORDING_STARTED":
       return "listening"
@@ -20,8 +19,6 @@ function getState(eventType){
   }
   return 'idle'
 }
-
-
 
 const sendMessageToExtension = (message, callback) => {
   if (chrome && chrome.runtime && chrome.runtime.sendMessage) {
@@ -50,7 +47,6 @@ function OnboardingPage() {
   const textAreaRef = useRef(null);
 
   useEffect(() => {
-    // Get shortcuts from extension when component mounts
     sendMessageToExtension({
       eventType: 'GET_SHORTCUTS',
     }, (response) => {
@@ -60,19 +56,16 @@ function OnboardingPage() {
   }, []);
 
   useEffect(() => {
-    // Event listener for messages from content script
     const handleMessageFromContentScript = (event) => {
       if (event.data && event.data.type === 'GET_STATE_RESPONSE') {
         console.log('Response from content script:', event.data);
-        const state = getState(event.data.response);
-        setState(state);
+        const newState = getState(event.data.response);
+        setState(newState);
       }
     };
 
-    // Add listener only once
     window.addEventListener('message', handleMessageFromContentScript);
 
-    // Periodically send a message to the content script to get state
     const intervalId = setInterval(() => {
       console.log('Getting state from content script');
       sendMessageToContentScriptInCurrentTab({
@@ -80,27 +73,51 @@ function OnboardingPage() {
       });
     }, 1000);
 
-    // Cleanup: Remove event listener and interval when component unmounts
     return () => {
       window.removeEventListener('message', handleMessageFromContentScript);
       clearInterval(intervalId);
     };
   }, []);
 
+  useEffect(() => {
+    console.log("State is ",state);
+    handleStateChange(state);
+  }, [state]);
+
+  const handleStateChange = (newState) => {
+    switch (newState) {
+      case 'listening':
+        setMessage('Notice the listening icon change on the Chrome extension bar. Notice the sound.');
+        setTimeout(() => {
+          setMessage('Speak "Marry had a little lamb."');
+          setTimeout(() => {
+            setMessage('Press the shortcut again to transcribe.');
+          }, 3000);
+        }, 4000);
+        break;
+      case 'thinking':
+        setMessage('Notice the change in the extension icon and the sound.');
+        break;
+      case 'idle':
+        setMessage('Transcription received. Notice that the text is inserted into the text area.');
+        break;
+      case 'error':
+        setMessage('Error occurred. Please try again.');
+        break;
+    }
+  };
+
   const handleTextAreaClick = () => {
     if (step === 0) {
       setStep(1);
-      setTimeout(() => {
-        setMessage(`Press the ${shortcuts} to start listening`);
-      }, 100);
+      setMessage(`Press ${shortcuts} to begin.`);
     }
 
-    // Focus the textarea after DOM update
     setTimeout(() => {
       if (textAreaRef.current) {
         textAreaRef.current.focus();
       }
-    }, 10); 
+    }, 10);
   };
 
   return (
@@ -110,10 +127,10 @@ function OnboardingPage() {
       marginRight: 'auto',
       textAlign: 'center',
     }}>
-      <h1>DictationDaddy Demo</h1>
+      <h1>Dictation Demo</h1>
       <textarea
         ref={textAreaRef}
-        placeholder="Click here to begin"
+        placeholder="Click here to start"
         onClick={handleTextAreaClick}
         style={{
           width: '100%',
@@ -125,7 +142,7 @@ function OnboardingPage() {
         }}
       ></textarea>
       <p>{message}</p>
-      <p>{state}</p>
+      <p>Current state: {state}</p>
     </div>
   );
 }
