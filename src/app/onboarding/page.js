@@ -148,7 +148,7 @@ function OnboardingPage() {
         position: 'relative',
         color: '#000000',  // Updated to black
       }}>
-        <h1 style={{ marginBottom: '2rem', color:'black', marginTop: '2rem', fontSize: '2rem' }}>Dictation Demo</h1>
+        <h1 style={{ marginBottom: '2rem', color:'black', marginTop: '2rem', fontSize: '2em', fontWeight: 'bold' }}>Dictation Demo</h1>
         <textarea
           ref={textAreaRef}
           placeholder="Click here to start"
@@ -162,12 +162,13 @@ function OnboardingPage() {
             outline: 'none',
             fontFamily: "'Kalam', cursive",
             backgroundColor: 'white',
+            fontSize: '1.5rem',
             border: '1px solid #8B4513',
             borderRadius: '5px',
           }}
         ></textarea>
-        <p>{message}</p>
-        { state !== '' && <p>Current state: {state}</p>}
+        <p style={{ fontSize: '1.5rem' }}>{message}</p>
+        { state !== '' && <p style={{ fontSize: '1.5rem' }}>Current state: {state}</p>}
         {showArrow && (
           <div style={{
             position: 'absolute',
