@@ -45,6 +45,7 @@ function OnboardingPage() {
   const [shortcuts, setShortcuts] = useState([]);
   const [state, setState] = useState('');
   const textAreaRef = useRef(null);
+  const [showArrow, setShowArrow] = useState(false);
 
   useEffect(() => {
     sendMessageToExtension({
@@ -80,8 +81,15 @@ function OnboardingPage() {
   }, []);
 
   useEffect(() => {
-    console.log("State is ",state);
+    console.log("State is ", state);
     handleStateChange(state);
+    
+    // Show the arrow when state changes to listening, thinking, or idle
+    if (['listening', 'thinking', 'idle'].includes(state)) {
+      setShowArrow(true);
+      // Hide the arrow after 5 seconds
+      setTimeout(() => setShowArrow(false), 5000);
+    }
   }, [state]);
 
   const handleStateChange = (newState) => {
@@ -91,7 +99,7 @@ function OnboardingPage() {
         setTimeout(() => {
           setMessage('Speak "Marry had a little lamb."');
           setTimeout(() => {
-            setMessage('Press the shortcut again to transcribe.');
+            setMessage(`Press the ${shortcuts} again to transcribe.`);
           }, 3000);
         }, 4000);
         break;
@@ -126,7 +134,19 @@ function OnboardingPage() {
       marginLeft: 'auto',
       marginRight: 'auto',
       textAlign: 'center',
+      position: 'relative',
     }}>
+      {showArrow && (
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          right: '-50px',
+          fontSize: '24px',
+          animation: 'bounce 0.5s infinite alternate',
+        }}>
+          ↗️
+        </div>
+      )}
       <h1>Dictation Demo</h1>
       <textarea
         ref={textAreaRef}
@@ -143,6 +163,12 @@ function OnboardingPage() {
       ></textarea>
       <p>{message}</p>
       <p>Current state: {state}</p>
+      <style jsx>{`
+        @keyframes bounce {
+          from { transform: translateY(0px); }
+          to { transform: translateY(-10px); }
+        }
+      `}</style>
     </div>
   );
 }
