@@ -3,7 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import './onboarding.css';
-
+import listeningIcon from './extension-icons/logo-listening.png';
+import idleIcon from './extension-icons/logo-128.png';
+import errorIcon from './extension-icons/logo-error.png';
+import thinkingIcon from './extension-icons/logo-thinking.png';
 
 function getState(eventType) {
   switch (eventType) {
@@ -89,6 +92,7 @@ function OnboardingPage() {
     
     if (['listening', 'thinking', 'idle', 'error'].includes(state)) {
       setShowIcon(true);
+      setTimeout(() => setShowIcon(false), 5000);
     }
   }, [state]);
 
@@ -131,15 +135,15 @@ function OnboardingPage() {
   const getIconPath = (state) => {
     switch (state) {
       case 'listening':
-        return '/extension-icons/logo-listening.png';
+        return listeningIcon;
       case 'idle':
-        return '/extension-icons/logo-128.png';
+          return idleIcon;
       case 'error':
-        return '/extension-icons/logo-error.png';
+        return errorIcon;
       case 'thinking':
-        return '/extension-icons/logo-thinking.png';
+        return thinkingIcon;
       default:
-        return '/extension-icons/logo-128.png';
+        return idleIcon;
     }
   };
 
@@ -173,6 +177,48 @@ function OnboardingPage() {
         }}>
           Dictation Daddy Demo
         </h1>
+        <div style={{
+          backgroundColor: '#fff',
+          padding: '1rem',
+          borderRadius: '10px',
+          boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+          marginBottom: '2rem'
+        }}>
+          <textarea
+            ref={textAreaRef}
+            placeholder="Click here to start"
+            onClick={handleTextAreaClick}
+            style={{
+              width: '100%',
+              padding: '15px',
+              color: '#000000',
+              height: '150px',
+              caretColor: '#000000',
+              outline: 'none',
+              fontFamily: "'Kalam', cursive",
+              backgroundColor: 'transparent',
+              fontSize: '1.5rem',
+              border: '2px solid #8B4513',
+              borderRadius: '5px',
+              resize: 'vertical',
+            }}
+          ></textarea>
+        </div>
+        <div style={{
+          backgroundColor: '#fff',
+          padding: '1rem',
+          borderRadius: '10px',
+          boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+          marginBottom: '2rem'
+        }}>
+          <p style={{ 
+            fontSize: '1.5rem', 
+            color: '#8B4513', 
+            fontWeight: 'bold' 
+          }}>
+            {message}
+          </p>
+        </div>
         {state !== '' && (
           <div style={{
             backgroundColor: '#e6ccb3',
@@ -203,49 +249,6 @@ function OnboardingPage() {
             </p>
           </div>
         )}
-        <div style={{
-          backgroundColor: '#fff',
-          padding: '1rem',
-          borderRadius: '10px',
-          boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-          marginBottom: '2rem'
-        }}>
-          <textarea
-            ref={textAreaRef}
-            placeholder="Click here to start"
-            onClick={handleTextAreaClick}
-            style={{
-              width: '100%',
-              padding: '15px',
-              color: '#000000',
-              height: '150px',
-              caretColor: '#000000',
-              outline: 'none',
-              fontFamily: "'Kalam', cursive",
-              backgroundColor: 'transparent',
-              fontSize: '1.5rem',
-              border: '2px solid #8B4513',
-              borderRadius: '5px',
-              resize: 'vertical',
-            }}
-          ></textarea>
-        </div>
-        { message &&  <div style={{
-          backgroundColor: '#fff',
-          padding: '1rem',
-          borderRadius: '10px',
-          boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-          marginBottom: '2rem'
-        }}>
-         { message && <p style={{ 
-            fontSize: '1.5rem', 
-            color: '#8B4513', 
-            fontWeight: 'bold' 
-          }}>
-              {message}
-            </p>
-        }
-          </div>}
         <style jsx>{`
           @keyframes bounce {
             from { transform: translateY(0px); }
