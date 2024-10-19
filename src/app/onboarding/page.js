@@ -48,7 +48,7 @@ function OnboardingPage() {
   const [shortcuts, setShortcuts] = useState([]);
   const [state, setState] = useState('');
   const textAreaRef = useRef(null);
-  const [showIcon, setShowIcon] = useState(false);
+  const [showIcon, setShowIcon] = useState(true);
 
   useEffect(() => {
     sendMessageToExtension({
@@ -95,7 +95,7 @@ function OnboardingPage() {
   const handleStateChange = (newState) => {
     switch (newState) {
       case 'listening':
-        setMessage('Notice the listening icon change on the Chrome extension bar. Notice the sound.');
+        setMessage('Notice icon change on the Chrome extension bar and beep sound.');
         setTimeout(() => {
           setMessage('Speak "Marry had a little lamb."');
           setTimeout(() => {
@@ -104,10 +104,10 @@ function OnboardingPage() {
         }, 4000);
         break;
       case 'thinking':
-        setMessage('Notice the change in the extension icon and the sound.');
+        setMessage('Notice the change in the extension icon in chrome bar and beep sound.');
         break;
       case 'idle':
-        setMessage('Transcription received. Notice that the text is inserted into the text area.');
+        setMessage('Transcription received. Notice that the text is inserted at cursor.');
         break;
       case 'error':
         setMessage('Error occurred. Please try again.');
@@ -173,7 +173,6 @@ function OnboardingPage() {
         }}>
           Dictation Daddy Demo
         </h1>
-        {state !== '' && (
           <div style={{
             backgroundColor: '#e6ccb3',
             padding: '1rem',
@@ -199,10 +198,9 @@ function OnboardingPage() {
               fontSize: '1.5rem', 
               color: '#8B4513'
             }}>
-              Current state: <span style={{ fontWeight: 'bold' }}>{state}</span>
+              Current state: <span style={{ fontWeight: 'bold' }}>{state || 'idle'}</span>
             </p>
           </div>
-        )}
         <div style={{
           backgroundColor: '#fff',
           padding: '1rem',
