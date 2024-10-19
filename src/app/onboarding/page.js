@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Head from 'next/head';
+import './onboarding.css';
 
 function getState(eventType) {
   switch (eventType) {
@@ -129,47 +131,62 @@ function OnboardingPage() {
   };
 
   return (
-    <div style={{
-      width: '70%',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      textAlign: 'center',
-      position: 'relative',
-    }}>
-      {showArrow && (
-        <div style={{
-          position: 'absolute',
-          top: '10px',
-          right: '-50px',
-          fontSize: '24px',
-          animation: 'bounce 0.5s infinite alternate',
-        }}>
-          ↗️
-        </div>
-      )}
-      <h1>Dictation Demo</h1>
-      <textarea
-        ref={textAreaRef}
-        placeholder="Click here to start"
-        onClick={handleTextAreaClick}
-        style={{
-          width: '100%',
-          padding: '10px',
-          color: 'black',
-          height: '100px',
-          caretColor: 'black',
-          outline: 'none',
-        }}
-      ></textarea>
-      <p>{message}</p>
-      <p>Current state: {state}</p>
-      <style jsx>{`
-        @keyframes bounce {
-          from { transform: translateY(0px); }
-          to { transform: translateY(-10px); }
-        }
-      `}</style>
-    </div>
+    <>
+      <Head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&display=swap" rel="stylesheet" />
+      </Head>
+      <div style={{
+        fontFamily: "'Kalam', cursive",
+        backgroundColor: '#f5e6d3',
+        minHeight: '100vh',
+        width: '70%',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        textAlign: 'center',
+        position: 'relative',
+        color: '#000000',  // Updated to black
+      }}>
+        <h1 style={{ marginBottom: '2rem', color:'black', marginTop: '2rem', fontSize: '2rem' }}>Dictation Demo</h1>
+        <textarea
+          ref={textAreaRef}
+          placeholder="Click here to start"
+          onClick={handleTextAreaClick}
+          style={{
+            width: '80%',
+            padding: '10px',
+            color: '#000000',  // Updated to black
+            height: '100px',
+            caretColor: '#000000',  // Updated to black
+            outline: 'none',
+            fontFamily: "'Kalam', cursive",
+            backgroundColor: 'white',
+            border: '1px solid #8B4513',
+            borderRadius: '5px',
+          }}
+        ></textarea>
+        <p>{message}</p>
+        { state !== '' && <p>Current state: {state}</p>}
+        {showArrow && (
+          <div style={{
+            position: 'absolute',
+            top: '10px',
+            right: '-50px',
+            fontSize: '24px',
+            animation: 'bounce 0.5s infinite alternate',
+          }}>
+            ↗️
+          </div>
+        )}
+        <style jsx>{`
+          @keyframes bounce {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-10px); }
+          }
+        `}</style>
+      </div>
+    </>
   );
 }
 
