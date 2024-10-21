@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Head from 'next/head';
 import './onboarding.css';
 import { useSearchParams } from 'next/navigation';
@@ -43,11 +43,11 @@ const sendMessageToContentScriptInCurrentTab = (message) => {
   }
 };
 
-function OnboardingPage() {
+function OnboardingPageContent() {
   const [step, setStep] = useState(0);
   const [message, setMessage] = useState('');
   const [shortcuts, setShortcuts] = useState([]);
-  const [state, setState] = useState('idle');
+  const [state, setState] = useState('');
   const textAreaRef = useRef(null);
   const [showIcon, setShowIcon] = useState(true);
   const searchParams = useSearchParams();
@@ -285,6 +285,14 @@ function OnboardingPage() {
         `}</style>
       </div>
     </>
+  );
+}
+
+function OnboardingPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OnboardingPageContent />
+    </Suspense>
   );
 }
 
