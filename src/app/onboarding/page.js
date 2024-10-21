@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import './onboarding.css';
-
+import { useSearchParams } from 'next/navigation';
+import { trackEvent, EVENTS } from '@/mixpanel';
 
 function getState(eventType) {
   switch (eventType) {
@@ -46,9 +47,11 @@ function OnboardingPage() {
   const [step, setStep] = useState(0);
   const [message, setMessage] = useState('');
   const [shortcuts, setShortcuts] = useState([]);
-  const [state, setState] = useState('');
+  const [state, setState] = useState('idle');
   const textAreaRef = useRef(null);
   const [showIcon, setShowIcon] = useState(true);
+  const searchParams = useSearchParams();
+  const uid = searchParams.get('uid');
 
   useEffect(() => {
     sendMessageToExtension({
@@ -57,6 +60,7 @@ function OnboardingPage() {
       console.log(response);
       setShortcuts(response.shortcuts);
     });
+    trackEvent(uid, EVENTS.DEMO_OPENED);
   }, []);
 
   useEffect(() => {
@@ -244,6 +248,35 @@ function OnboardingPage() {
             </p>
         }
           </div>}
+
+      {state === 'idle' && (
+          <div style={{
+            marginBottom: '2rem'
+          }}>
+            <p style={{
+              marginTop: '1rem',
+              fontSize: '1.2rem',
+              color: '#8B4513'
+            }}>
+              Dictation Daddy works on most text fields. If text insertion fails, it's copied to your clipboard for easy pasting.
+            </p>
+
+            <button 
+              style={{
+                marginTop: '1rem',
+                fontSize: '1.2rem',
+                color: '#8B4513',
+                border: '2px solid #8B4513',
+                borderRadius: '5px',
+                padding: '10px 20px',
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                trackEvent(uid, EVENTS.DEMO_COMPLETED);
+                alert("You can now close this page and use Dictation Daddy in your browser.");
+              }}>I understand how to use it</button>
+          </div>
+        )}
         <style jsx>{`
           @keyframes bounce {
             from { transform: translateY(0px); }
