@@ -46,7 +46,7 @@ const sendMessageToContentScriptInCurrentTab = (message) => {
 function OnboardingPageContent() {
   const [step, setStep] = useState(0);
   const [message, setMessage] = useState('');
-  const [shortcuts, setShortcuts] = useState([]);
+  const [shortcuts, setShortcuts] = useState("Ctrl+Shift+Space");
   const [state, setState] = useState('');
   const textAreaRef = useRef(null);
   const [showIcon, setShowIcon] = useState(true);
